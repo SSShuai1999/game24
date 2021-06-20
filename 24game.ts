@@ -116,7 +116,7 @@ type IsNever<T> = Equal<T, never>
 /** 使用递归去壳 */
 type UnarrayCorrect<T> = {
     isArray: T extends Array<infer R> ? UnarrayCorrect<R> : never,
-    no: T    
+    no: T
 }[T extends any[] ? "isArray" : "no"]
 
 /** 四则运算 */
@@ -160,41 +160,29 @@ type _7_2 = Sub<FromNumber<5>, FromNumber<5>>
  * 如果没有 0，给 A 减去 1，然后返回 B 加上 (A - 1) * B
  * 也就是说 0 * B = 0 且 A * B = B + (A - 1) * B
  */
-
-// type Mult<A extends Num, B extends Num, R extends Num = Zero> = {
-//     "has Zero": R,
-//     "no Zero": Mult<Pre<A>, B, Add<B, R>>
-// }[If<Or<IsZero<A>, IsZero<B>>, "has Zero", "no Zero">]
-
-// type Mult<A extends Num, B extends Num> = MultHelper<A, B, Zero>
-
-// type MultHelper<A extends Num, B extends Num, R extends Num> = {
-//     "Has Zero": R
-//     "No Zero": MultHelper<Pre<A>, B, Add<B, R>> 
-// }[If<Or<IsZero<A>, IsZero<B>>, "Has Zero", "No Zero">]
-
 type Mult<A extends Num, B extends Num, R extends Num = Zero> = {
     "Has Zero": R
-    "No Zero": Mult<Pre<A>, B, Add<B, R>> 
+    "No Zero": Mult<Pre<A>, B, Add<B, R>>
 }[If<Or<IsZero<A>, IsZero<B>>, "Has Zero", "No Zero">]
 
 type _81 = Mult<_2, _4>
 
 /** 
  * 除法
- * 如果 A = 0，那么返回 never
- * 如果 B = 0, 也返回 never
- * 如果 A !== 0 且 B !== 0 ，A / B =,
+ * 如果 A 是 0，那么返回 0。
+ * 如果 B 是 0，那么返回 never。
+ * 如果没有 0，那么返回1加上 (A - B) / B。
+ * 也就是 0 / B = 0，A / B = 1 + (A - B) / B。
  */
 
- type Div<A extends Num, B extends Num> = DivHelper<A, B, B, Zero>
+type Div<A extends Num, B extends Num> = DivHelper<A, B, B, Zero>
 
- type DivHelper<A extends Num, B extends Num, S extends Num, R extends Num> = {
+type DivHelper<A extends Num, B extends Num, S extends Num, R extends Num> = {
     "A0S0": Succ<R>
     "A0S+": never
     "A+S0": DivHelper<A, B, B, Succ<R>>
     "A+S+": DivHelper<Pre<A>, B, Pre<S>, R>
- }[If<IsZero<A>, If<IsZero<S>, "A0S0", "A0S+">, If<IsZero<S>, "A+S0", "A+S+">>]
+}[If<IsZero<A>, If<IsZero<S>, "A0S0", "A0S+">, If<IsZero<S>, "A+S0", "A+S+">>]
 
 type s = Div<FromNumber<8>, FromNumber<4>>
 
@@ -217,7 +205,7 @@ type s = Div<FromNumber<8>, FromNumber<4>>
 type DivHelper2<A extends Num, B extends Num, S extends Num = Zero, R extends Num = Zero> = {
     "A is Zero": {
         "S is Zero": Succ<R>
-        "S is not Zero": never 
+        "S is not Zero": never
     }[If<IsZero<S>, "S is Zero", "S is not Zero">]
     "A is not Zero": {
         "S is Zero": DivHelper<A, B, B, Succ<R>>,
